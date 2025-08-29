@@ -36,6 +36,44 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+# Battle Pass Models
+class BattlePassReward(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    day: int
+    item_name: str
+    item_type: str  # "points", "cash", "item"
+    reward_value: int
+    icon: str
+    description: str
+
+class BattlePassSeason(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    season_number: int
+    name: str
+    start_date: datetime
+    end_date: datetime
+    is_active: bool = True
+    rewards: List[BattlePassReward] = []
+
+class UserBattlePassProgress(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    uid: int
+    season_id: str
+    current_day: int = 1
+    claimed_days: List[int] = []
+    last_claim_date: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ClaimRewardRequest(BaseModel):
+    uid: int
+    day: int
+
+class ClaimRewardResponse(BaseModel):
+    success: bool
+    message: str
+    reward: Optional[BattlePassReward] = None
+    new_day: Optional[int] = None
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
